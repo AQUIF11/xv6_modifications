@@ -34,6 +34,7 @@
 000003db dup
 00000b80 buf
 000002a0 stat
+00000403 gethistory
 00000b64 _edata
 00000d8c _end
 000003c3 link

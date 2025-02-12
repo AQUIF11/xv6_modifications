@@ -192,7 +192,7 @@ int main(void) {
  165:	6a 01                	push   $0x1
  167:	e8 54 05 00 00       	call   6c0 <printf>
  16c:	83 c4 10             	add    $0x10,%esp
-            sleep(10000);  // Prevent further interaction, effectively disabling login
+            sleep(10000);  
  16f:	83 ec 0c             	sub    $0xc,%esp
  172:	68 10 27 00 00       	push   $0x2710
  177:	e8 77 04 00 00       	call   5f3 <sleep>
@@ -918,10 +918,12 @@ SYSCALL(uptime)
  5fb:	b8 0e 00 00 00       	mov    $0xe,%eax
  600:	cd 40                	int    $0x40
  602:	c3                   	ret
- 603:	66 90                	xchg   %ax,%ax
- 605:	66 90                	xchg   %ax,%ax
- 607:	66 90                	xchg   %ax,%ax
- 609:	66 90                	xchg   %ax,%ax
+
+00000603 <gethistory>:
+SYSCALL(gethistory)
+ 603:	b8 16 00 00 00       	mov    $0x16,%eax
+ 608:	cd 40                	int    $0x40
+ 60a:	c3                   	ret
  60b:	66 90                	xchg   %ax,%ax
  60d:	66 90                	xchg   %ax,%ax
  60f:	90                   	nop

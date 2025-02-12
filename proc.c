@@ -7,10 +7,11 @@
 #include "proc.h"
 #include "spinlock.h"
 
-struct {
-  struct spinlock lock;
-  struct proc proc[NPROC];
-} ptable;
+struct history_entry process_history[MAX_HISTORY];
+int history_count = 0;  // Number of entries in history
+int history_index = 0;  // Circular index
+
+struct ptable_t ptable;
 
 static struct proc *initproc;
 
@@ -111,6 +112,22 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  // Make sure process name is set before adding to history
+  safestrcpy(p->name, "unknown", sizeof(p->name));  // Default name
+
+  // Add process to history (Circular Buffer)
+  acquire(&ptable.lock);
+  process_history[history_index].pid = p->pid;
+  safestrcpy(process_history[history_index].name, p->name, CMD_NAME_MAX);
+  process_history[history_index].mem_usage = p->sz;
+
+  // Update history index (Circular Buffer)
+  history_index = (history_index + 1) % MAX_HISTORY;
+  if (history_count < MAX_HISTORY) {
+      history_count++;  // Keep track of number of stored records
+  }
+  release(&ptable.lock);
 
   return p;
 }

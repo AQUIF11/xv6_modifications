@@ -32,6 +32,7 @@
 000000b0 strcmp
 0000034b dup
 00000210 stat
+00000373 gethistory
 00000a9c _edata
 00000aa8 _end
 00000333 link

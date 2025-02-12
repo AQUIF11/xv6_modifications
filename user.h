@@ -1,5 +1,12 @@
+#define CMD_NAME_MAX 16
+
 struct stat;
 struct rtcdate;
+struct history_entry {
+    int pid;
+    char name[CMD_NAME_MAX];
+    int mem_usage;
+};
 
 // system calls
 int fork(void);
@@ -23,6 +30,7 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int gethistory(struct history_entry *hist_buf, int max_entries);
 
 // ulib.c
 int stat(const char*, struct stat*);

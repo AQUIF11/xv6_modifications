@@ -35,6 +35,7 @@
 000005db dup
 00000230 get_input
 000004a0 stat
+00000603 gethistory
 00000eec _edata
 00000ef8 _end
 000005c3 link

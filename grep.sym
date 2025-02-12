@@ -36,6 +36,7 @@
 0000063b dup
 00000e80 buf
 00000500 stat
+00000663 gethistory
 00000e80 _edata
 0000128c _end
 00000170 match

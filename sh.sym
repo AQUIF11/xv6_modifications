@@ -52,6 +52,7 @@
 000003b0 pipecmd
 00000360 redircmd
 00000d50 stat
+00000eb3 gethistory
 000019c2 _edata
 00001a50 _end
 00000e73 link
