@@ -6,6 +6,7 @@
 #define CMD_NAME_MAX 16
 // Maximum number of processes to keep in history
 #define MAX_HISTORY 10
+#define MAX_SYSCALLS 25
 
 // Per-CPU state
 struct cpu {
@@ -58,6 +59,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
+  uint blocked_syscalls[MAX_SYSCALLS];  // Array to track blocked syscalls
 };
 
 // Process memory is laid out contiguously, low addresses first:

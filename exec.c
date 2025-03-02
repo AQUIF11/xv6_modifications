@@ -93,6 +93,30 @@ exec(char *path, char **argv)
       last = s+1;
   safestrcpy(curproc->name, last, sizeof(curproc->name));
 
+  // Preserve blocked syscalls from parent shell to new process
+  acquire(&ptable.lock);
+  struct proc *p;
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+      if (p == curproc) {
+          for (int j = 0; j < MAX_SYSCALLS; j++) {
+              p->blocked_syscalls[j] = curproc->blocked_syscalls[j];
+          }
+          break;
+      }
+  }
+  release(&ptable.lock);
+
+  // Update process history **before** committing the new address space
+  acquire(&ptable.lock);
+  for (int i = 0; i < history_count; i++) {
+    if (process_history[i].pid == curproc->pid) {
+      process_history[i].mem_usage = curproc->sz; // Capture memory before switching
+      safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
+      break;
+    }
+  }
+  release(&ptable.lock);
+
   // Commit to the user image.
   oldpgdir = curproc->pgdir;
   curproc->pgdir = pgdir;
@@ -101,6 +125,20 @@ exec(char *path, char **argv)
   curproc->tf->esp = sp;
   switchuvm(curproc);
   freevm(oldpgdir);
+
+  // Update process history with new memory size
+  acquire(&ptable.lock);
+  for (int i = 0; i < history_count; i++) {
+      if (process_history[i].pid == curproc->pid) {
+          if(curproc->sz > process_history[i].mem_usage) {
+            process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
+          }
+          safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
+          break;
+      }
+  }
+  release(&ptable.lock);
+
   return 0;
 
  bad:

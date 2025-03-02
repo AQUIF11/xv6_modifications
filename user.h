@@ -31,6 +31,9 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int gethistory(struct history_entry *hist_buf, int max_entries);
+int block(int syscall_id);
+int unblock(int syscall_id);
+
 
 // ulib.c
 int stat(const char*, struct stat*);

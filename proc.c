@@ -251,6 +251,19 @@ exit(void)
   if(curproc == initproc)
     panic("init exiting");
 
+  // Update history with the final memory usage before process terminates
+  acquire(&ptable.lock);
+  for (int i = 0; i < history_count; i++) {
+      if (process_history[i].pid == curproc->pid) {
+        if(curproc->sz > process_history[i].mem_usage) {
+          process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
+        }
+          safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
+          break;
+      }
+  }
+  release(&ptable.lock);
+
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
     if(curproc->ofile[fd]){
@@ -283,6 +296,72 @@ exit(void)
   sched();
   panic("zombie exit");
 }
+
+// void exit(void) {
+//   struct proc *curproc = myproc();
+//   struct proc *p;
+//   int fd;
+//   int already_updated = 0;
+
+//   if (curproc == initproc)
+//       panic("init exiting");
+
+//   // Close all open files.
+//   for (fd = 0; fd < NOFILE; fd++) {
+//       if (curproc->ofile[fd]) {
+//           fileclose(curproc->ofile[fd]);
+//           curproc->ofile[fd] = 0;
+//       }
+//   }
+
+//   begin_op();
+//   iput(curproc->cwd);
+//   end_op();
+//   curproc->cwd = 0;
+
+//   // Ensure `exit()` doesn't overwrite already-updated memory size
+//   acquire(&ptable.lock);
+//   for (int i = 0; i < history_count; i++) {
+//       if (process_history[i].pid == curproc->pid) {
+//           if (process_history[i].mem_usage == curproc->sz) {
+//               already_updated = 1;  // Memory was already recorded
+//           }
+//           break;
+//       }
+//   }
+//   release(&ptable.lock);
+
+//   // If not updated before, record the final memory usage
+//   if (!already_updated) {
+//       acquire(&ptable.lock);
+//       for (int i = 0; i < history_count; i++) {
+//           if (process_history[i].pid == curproc->pid) {
+//               process_history[i].mem_usage = curproc->sz;  // Final memory before exit
+//               break;
+//           }
+//       }
+//       release(&ptable.lock);
+//   }
+
+//   acquire(&ptable.lock);
+
+//   // Parent might be sleeping in wait().
+//   wakeup1(curproc->parent);
+
+//   // Pass abandoned children to init.
+//   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+//       if (p->parent == curproc) {
+//           p->parent = initproc;
+//           if (p->state == ZOMBIE)
+//               wakeup1(initproc);
+//       }
+//   }
+
+//   curproc->state = ZOMBIE;
+//   sched();
+//   panic("zombie exit");
+// }
+
 
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.

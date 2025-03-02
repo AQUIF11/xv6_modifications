@@ -89,7 +89,6 @@ extern int sys_exec(void);
 extern int sys_exit(void);
 extern int sys_fork(void);
 extern int sys_fstat(void);
-extern int sys_gethistory(void);
 extern int sys_getpid(void);
 extern int sys_kill(void);
 extern int sys_link(void);
@@ -104,6 +103,9 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_gethistory(void);
+extern int sys_block(void);
+extern int sys_unblock(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -128,6 +130,8 @@ static int (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_gethistory]  sys_gethistory,
+[SYS_block]   sys_block,
+[SYS_unblock]   sys_unblock,     
 };
 
 void
@@ -137,7 +141,15 @@ syscall(void)
   struct proc *curproc = myproc();
 
   num = curproc->tf->eax;
+
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    // Check if the syscall is blocked
+    if (curproc->blocked_syscalls[num]) {
+      cprintf("syscall %d is blocked\n", num);
+      curproc->tf->eax = -1; // Return error
+      return;
+    }
+
     curproc->tf->eax = syscalls[num]();
   } else {
     cprintf("%d %s: unknown sys call %d\n",
