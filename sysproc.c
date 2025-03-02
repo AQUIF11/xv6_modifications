@@ -8,6 +8,9 @@
 #include "proc.h"
 #include "syscall.h"
 
+int blocked_syscalls[MAX_SYSCALLS] = {0};  // Global kernel-side tracking
+
+
 int sys_fork(void) {
     return fork();
 }
@@ -156,26 +159,44 @@ int sys_gethistory(void) {
 }
 
 // System call to block system calls
+// int sys_block(void) {
+//     int syscall_id;
+//     struct proc *curproc = myproc();
+
+//     if (argint(0, &syscall_id) < 0) 
+//         return -1;
+
+//     // Prevent blocking critical syscalls
+//     if (syscall_id == SYS_fork || syscall_id == SYS_exit || syscall_id == SYS_unblock) {
+//         return -1;
+//     }
+
+//     // Block the syscall for the current shell session
+//     if (syscall_id >= 0 && syscall_id < MAX_SYSCALLS) {
+//         curproc->blocked_syscalls[syscall_id] = 1;
+//         return 0;
+//     }
+
+//     return -1;
+// }
 int sys_block(void) {
     int syscall_id;
-    struct proc *curproc = myproc();
-
     if (argint(0, &syscall_id) < 0) 
         return -1;
+    
+    if (syscall_id < 0 || syscall_id >= MAX_SYSCALLS) 
+        return -1;
 
-    // Prevent blocking critical syscalls
+    // Prevent blocking critical system calls
     if (syscall_id == SYS_fork || syscall_id == SYS_exit || syscall_id == SYS_unblock) {
         return -1;
     }
 
-    // Block the syscall for the current shell session
-    if (syscall_id >= 0 && syscall_id < MAX_SYSCALLS) {
-        curproc->blocked_syscalls[syscall_id] = 1;
-        return 0;
-    }
-
-    return -1;
+    blocked_syscalls[syscall_id] = 1;  // Store in the kernel
+    return 0;
 }
+
+
 
 // System call to unblock system calls
 // int sys_unblock(void) {
@@ -222,32 +243,52 @@ int sys_block(void) {
 //     return -1;
 // }
 
+// int sys_unblock(void) {
+//     int syscall_id;
+//     struct proc *curproc = myproc();
+//     struct proc *p;
+
+//     if (argint(0, &syscall_id) < 0) 
+//         return -1;
+
+//     if (syscall_id < 0 || syscall_id >= MAX_SYSCALLS) 
+//         return -1;
+
+//     acquire(&ptable.lock);
+    
+//     // Debugging output
+//     cprintf("Unblocking syscall %d for PID %d and its children\n", syscall_id, curproc->pid);
+
+//     for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+//         if (p->parent == curproc || p == curproc) {
+//             p->blocked_syscalls[syscall_id] = 0;
+//             cprintf("Syscall %d unblocked for PID %d\n", syscall_id, p->pid);
+//         }
+//     }
+
+//     release(&ptable.lock);
+//     return 0;
+// }
 int sys_unblock(void) {
     int syscall_id;
-    struct proc *curproc = myproc();
-    struct proc *p;
 
+    // Get the syscall ID from arguments
     if (argint(0, &syscall_id) < 0) 
         return -1;
 
+    // Validate syscall ID range
     if (syscall_id < 0 || syscall_id >= MAX_SYSCALLS) 
         return -1;
 
-    acquire(&ptable.lock);
-    
-    // Debugging output
-    cprintf("Unblocking syscall %d for PID %d and its children\n", syscall_id, curproc->pid);
+    // Unblock the specified syscall
+    blocked_syscalls[syscall_id] = 0;
 
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-        if (p->parent == curproc || p == curproc) {
-            p->blocked_syscalls[syscall_id] = 0;
-            cprintf("Syscall %d unblocked for PID %d\n", syscall_id, p->pid);
-        }
-    }
-
-    release(&ptable.lock);
     return 0;
 }
+
+
+
+
 
 
 

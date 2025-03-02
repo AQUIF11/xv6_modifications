@@ -59,7 +59,6 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  uint blocked_syscalls[MAX_SYSCALLS];  // Array to track blocked syscalls
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -93,18 +93,8 @@ exec(char *path, char **argv)
       last = s+1;
   safestrcpy(curproc->name, last, sizeof(curproc->name));
 
-  // Preserve blocked syscalls from parent shell to new process
-  acquire(&ptable.lock);
-  struct proc *p;
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-      if (p == curproc) {
-          for (int j = 0; j < MAX_SYSCALLS; j++) {
-              p->blocked_syscalls[j] = curproc->blocked_syscalls[j];
-          }
-          break;
-      }
-  }
-  release(&ptable.lock);
+  // 6. DEBUG PRINT: Verify new process name
+  // cprintf("EXEC: Process name set to '%s'\n", curproc->name);
 
   // Update process history **before** committing the new address space
   acquire(&ptable.lock);

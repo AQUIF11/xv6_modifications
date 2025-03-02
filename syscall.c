@@ -7,6 +7,8 @@
 #include "x86.h"
 #include "syscall.h"
 
+extern int blocked_syscalls[MAX_SYSCALLS];  // Use the global array from sysproc.c
+
 // User code makes a system call with INT T_SYSCALL.
 // System call number in %eax.
 // Arguments on the stack, from the user call to the C
@@ -82,6 +84,15 @@ argstr(int n, char **pp)
   return fetchstr(addr, pp);
 }
 
+// Helper function for comparing two strings.
+int
+strcmp(const char *p, const char *q)
+{
+  while(*p && *p == *q)
+    p++, q++;
+  return (uchar)*p - (uchar)*q;
+}
+
 extern int sys_chdir(void);
 extern int sys_close(void);
 extern int sys_dup(void);
@@ -134,9 +145,7 @@ static int (*syscalls[])(void) = {
 [SYS_unblock]   sys_unblock,     
 };
 
-void
-syscall(void)
-{
+void syscall(void) {
   int num;
   struct proc *curproc = myproc();
 
@@ -144,9 +153,9 @@ syscall(void)
 
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Check if the syscall is blocked
-    if (curproc->blocked_syscalls[num]) {
+    if (blocked_syscalls[num]) {
       cprintf("syscall %d is blocked\n", num);
-      curproc->tf->eax = -1; // Return error
+      curproc->tf->eax = -1;  // Return error
       return;
     }
 
@@ -157,3 +166,4 @@ syscall(void)
     curproc->tf->eax = -1;
   }
 }
+

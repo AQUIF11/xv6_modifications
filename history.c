@@ -8,7 +8,7 @@ int main(void) {
     int count = gethistory(hist, MAX_HISTORY);
 
     if (count < 0) {
-        printf(1, "Error fetching process history\n");
+        // printf(1, "Error fetching process history\n");
         exit();
     }
 

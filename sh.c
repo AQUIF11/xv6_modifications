@@ -3,6 +3,7 @@
 #include "types.h"
 #include "user.h"
 #include "fcntl.h"
+#include "syscall.h"
 
 // Parsed command representation
 #define EXEC  1
@@ -73,13 +74,41 @@ runcmd(struct cmd *cmd)
   default:
     panic("runcmd");
 
+  // case EXEC:
+  //   ecmd = (struct execcmd*)cmd;
+  //   if(ecmd->argv[0] == 0)
+  //     exit();
+  //   exec(ecmd->argv[0], ecmd->argv);
+  //   printf(2, "exec %s failed\n", ecmd->argv[0]);
+  //   break;
   case EXEC:
     ecmd = (struct execcmd*)cmd;
-    if(ecmd->argv[0] == 0)
-      exit();
+    if (ecmd->argv[0] == 0)
+        exit();
+
+    // 3. Debugging: Print the command being executed
+    // printf(1, "SHELL: Attempting to exec %s\n", ecmd->argv[0]);
+
+    // 4. Open the file to check if it exists
+    // int fd = open(ecmd->argv[0], O_RDONLY);
+    // if (fd < 0) {
+    //     printf(1, "SHELL: Command not found: %s\n", ecmd->argv[0]);
+    //     exit();
+    // }
+    // close(fd);  // Close the file after checking
+
+    if (strcmp(ecmd->argv[0], "unblock") == 0) {
+        // 7. printf(1, "SHELL: Temporarily unblocking exec for 'unblock' command\n");
+        unblock(SYS_exec);
+    }
+
+    // Execute command
     exec(ecmd->argv[0], ecmd->argv);
-    printf(2, "exec %s failed\n", ecmd->argv[0]);
-    break;
+
+    // 6. If exec() fails, print failure message
+    // printf(2, "SHELL: Exec failed for %s\n", ecmd->argv[0]);
+    exit();
+
 
   case REDIR:
     rcmd = (struct redircmd*)cmd;
@@ -138,6 +167,7 @@ getcmd(char *buf, int nbuf)
   printf(2, "$ ");
   memset(buf, 0, nbuf);
   gets(buf, nbuf);
+  // 2. printf(1, "SHELL: Received command: %s\n", buf);
   if(buf[0] == 0) // EOF
     return -1;
   return 0;
@@ -148,6 +178,7 @@ main(void)
 {
   static char buf[100];
   int fd;
+  // 1. printf(1, "SHELL: Starting shell process\n");
 
   // Ensure that three file descriptors are open.
   while((fd = open("console", O_RDWR)) >= 0){
