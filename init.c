@@ -45,30 +45,30 @@ int main(void) {
     int attempts = 0;
 
     while (attempts < MAX_ATTEMPTS) {
-        printf(1, "Enter Username: ");
+        printf(1, "$Enter Username: ");
         get_input(username, sizeof(username));
 
         if (!is_valid_input(username)) {
-            printf(1, "Invalid username. Only letters and numbers are allowed.\n");
+            // printf(1, "Invalid username. Only letters and numbers are allowed.\n");
             attempts++;
             continue;
         }
         if (strcmp(username, USERNAME) != 0) {
-            printf(1, "Invalid username. Try again.\n");
+            // printf(1, "Invalid username. Try again.\n");
             attempts++;
             continue;
         }
 
-        printf(1, "Enter Password: ");
+        printf(1, "$Enter Password: ");
         get_input(password, sizeof(password));
 
         if (!is_valid_input(password)) {
-            printf(1, "Invalid password. Only letters and numbers are allowed.\n");
+            // printf(1, "Invalid password. Only letters and numbers are allowed.\n");
             attempts++;
             continue;
         }
         if (strcmp(password, PASSWORD) != 0) {
-            printf(1, "Invalid password. Try again.\n");
+            // printf(1, "Invalid password. Try again.\n");
             attempts++;
             continue;
         }
@@ -88,7 +88,7 @@ int main(void) {
 
     // Start the shell after successful login
     for (;;) {
-        printf(1, "init: starting sh\n");
+        // printf(1, "init: starting sh\n");
         int pid = fork();
         if (pid < 0) {
             printf(1, "init: fork failed\n");
