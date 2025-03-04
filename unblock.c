@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     if (unblock(syscall_id) < 0) {
         printf(2, "Failed to unblock syscall %d\n", syscall_id);
     } else {
-        printf(1, "Unblocked syscall %d\n", syscall_id);
+        // printf(1, "Unblocked syscall %d\n", syscall_id);
     }
 
     exit();

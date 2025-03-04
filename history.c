@@ -12,8 +12,11 @@ int main(void) {
         exit();
     }
 
-    printf(1, "PID\tCOMMAND\tMEMORY\n"); // Table Header
+    // printf(1, "PID\tCOMMAND\tMEMORY\n"); // Table Header
     for (int i = 0; i < count; i++) {
+        if(strcmp(hist[i].name, "sh") == 0) {
+            continue;
+        }
         printf(1, "%d\t%s\t%d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
     }
 

@@ -97,15 +97,15 @@ exec(char *path, char **argv)
   // cprintf("EXEC: Process name set to '%s'\n", curproc->name);
 
   // Update process history **before** committing the new address space
-  acquire(&ptable.lock);
-  for (int i = 0; i < history_count; i++) {
-    if (process_history[i].pid == curproc->pid) {
-      process_history[i].mem_usage = curproc->sz; // Capture memory before switching
-      safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
-      break;
-    }
-  }
-  release(&ptable.lock);
+  // acquire(&ptable.lock);
+  // for (int i = 0; i < history_count; i++) {
+  //   if (process_history[i].pid == curproc->pid) {
+  //     process_history[i].mem_usage = curproc->sz; // Capture memory before switching
+  //     safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
+  //     break;
+  //   }
+  // }
+  // release(&ptable.lock);
 
   // Commit to the user image.
   oldpgdir = curproc->pgdir;
@@ -117,17 +117,17 @@ exec(char *path, char **argv)
   freevm(oldpgdir);
 
   // Update process history with new memory size
-  acquire(&ptable.lock);
-  for (int i = 0; i < history_count; i++) {
-      if (process_history[i].pid == curproc->pid) {
-          if(curproc->sz > process_history[i].mem_usage) {
-            process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
-          }
-          safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
-          break;
-      }
-  }
-  release(&ptable.lock);
+  // acquire(&ptable.lock);
+  // for (int i = 0; i < history_count; i++) {
+  //     if (process_history[i].pid == curproc->pid) {
+  //         if(curproc->sz > process_history[i].mem_usage) {
+  //           process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
+  //         }
+  //         safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
+  //         break;
+  //     }
+  // }
+  // release(&ptable.lock);
 
   return 0;
 

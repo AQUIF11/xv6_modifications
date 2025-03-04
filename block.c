@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     if (block(syscall_id) < 0) {
         printf(2, "Failed to block syscall %d\n", syscall_id);
     } else {
-        printf(1, "Blocked syscall %d\n", syscall_id);
+        // printf(1, "Blocked syscall %d\n", syscall_id);
     }
 
     exit();

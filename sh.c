@@ -66,7 +66,10 @@ void history_command() {
 
   // printf(1, "PID\tCOMMAND\tMEMORY\n"); // Table Header
   for (int i = 0; i < count; i++) {
-      printf(1, "%d\t%s\t%d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
+    if(strcmp(hist[i].name, "sh") == 0) {
+        continue;
+    }
+    printf(1, "%d\t%s\t%d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
   }
 }
 
@@ -77,9 +80,9 @@ void block_command(char *arg) {
       return;
   }
   if (block(syscall_id) < 0) {
-      // printf(2, "Error: Failed to block syscall %d\n", syscall_id);
+      printf(2, "Error: Failed to block syscall %d\n", syscall_id);
   } else {
-      printf(1, "syscall %d is blocked\n", syscall_id);
+      // printf(1, "syscall %d is blocked\n", syscall_id);
   }
 }
 
@@ -90,9 +93,9 @@ void unblock_command(char *arg) {
       return;
   }
   if (unblock(syscall_id) < 0) {
-      // printf(2, "Error: Failed to unblock syscall %d\n", syscall_id);
+      printf(2, "Error: Failed to unblock syscall %d\n", syscall_id);
   } else {
-      printf(1, "syscall %d unblocked\n", syscall_id);
+      // printf(1, "syscall %d unblocked\n", syscall_id);
   }
 }
 

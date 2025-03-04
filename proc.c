@@ -113,6 +113,10 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+  if(p->pid == 1 || p->pid == 2) {
+    return p;
+  }
+
   // Make sure process name is set before adding to history
   safestrcpy(p->name, "unknown", sizeof(p->name));  // Default name
 

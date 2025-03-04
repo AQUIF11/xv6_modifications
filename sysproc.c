@@ -67,39 +67,54 @@ int sys_sbrk(void) {
 
     if(argint(0, &n) < 0)
         return -1;
-
     addr = curproc->sz;
 
     if(growproc(n) < 0)
         return -1;
-
-    // Wait for memory to be actually allocated
-    int max_wait_cycles = 100000; // Avoid infinite loop
-    while (curproc->sz == addr && max_wait_cycles > 0) {
-        max_wait_cycles--;
-    }
-
-    if (curproc->sz == addr) {
-        cprintf("sys_sbrk: Warning - Memory allocation did not reflect in time!\n");
-    } else {
-        cprintf("sys_sbrk: Memory size increased from %d to %d\n", addr, curproc->sz);
-    }
-
-    // Update only memory, do not overwrite name
-    acquire(&ptable.lock);
-    for (int i = 0; i < history_count; i++) {
-        if (process_history[i].pid == curproc->pid) {
-            // process_history[i].mem_usage = curproc->sz;
-            if(curproc->sz > process_history[i].mem_usage) {
-                process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
-            }
-            break;
-        }
-    }
-    release(&ptable.lock);
-
+    
     return addr;
 }
+
+// int sys_sbrk(void) {
+//     int addr;
+//     int n;
+//     struct proc *curproc = myproc();
+
+//     if(argint(0, &n) < 0)
+//         return -1;
+
+//     addr = curproc->sz;
+
+//     if(growproc(n) < 0)
+//         return -1;
+
+//     // Wait for memory to be actually allocated
+//     int max_wait_cycles = 100000; // Avoid infinite loop
+//     while (curproc->sz == addr && max_wait_cycles > 0) {
+//         max_wait_cycles--;
+//     }
+
+//     // if (curproc->sz == addr) {
+//     //     cprintf("sys_sbrk: Warning - Memory allocation did not reflect in time!\n");
+//     // } else {
+//     //     cprintf("sys_sbrk: Memory size increased from %d to %d\n", addr, curproc->sz);
+//     // }
+
+//     // Update only memory, do not overwrite name
+//     acquire(&ptable.lock);
+//     for (int i = 0; i < history_count; i++) {
+//         if (process_history[i].pid == curproc->pid) {
+//             // process_history[i].mem_usage = curproc->sz;
+//             if(curproc->sz > process_history[i].mem_usage) {
+//                 process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
+//             }
+//             break;
+//         }
+//     }
+//     release(&ptable.lock);
+
+//     return addr;
+// }
 
 
 int sys_sleep(void) {
