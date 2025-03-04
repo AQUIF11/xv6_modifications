@@ -5,8 +5,8 @@
 
 #define CMD_NAME_MAX 16
 // Maximum number of processes to keep in history
-#define MAX_HISTORY 10
-#define MAX_SYSCALLS 25
+#define MAX_HISTORY 100
+#define MAX_SYSCALLS 26
 
 // Per-CPU state
 struct cpu {

@@ -13,7 +13,7 @@
 #define BACK  5
 
 #define MAXARGS 10
-#define MAX_HISTORY 10
+#define MAX_HISTORY 100
 
 struct cmd {
   int type;
@@ -69,6 +69,12 @@ void history_command() {
     if(strcmp(hist[i].name, "sh") == 0) {
         continue;
     }
+
+    if(strcmp(hist[i].name, "unknown") == 0) {
+        printf(1, "%d\tsh\t%d\n", hist[i].pid, hist[i].mem_usage);
+        continue; 
+    }
+
     printf(1, "%d\t%s\t%d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
   }
 }
@@ -108,7 +114,7 @@ void chmod_command(char *file, char *mode_str) {
   if (chmod(file, mode) < 0) {
       printf(2, "chmod operation failed\n");
   } else {
-      printf(1, "Permissions updated for %s\n", file);
+      // printf(1, "Permissions updated for %s\n", file);
   }
 }
 
@@ -263,19 +269,20 @@ main(void)
     }
     buf[strlen(buf) - 1] = 0;  // Remove newline character
     
-    if (strcmp(buf, "history") == 0) {
-        history_command();
-        continue;
-    }
-    if (strcmp(buf, "block ") == 0) {
-        block_command(buf + 6);
-        continue;
-    }
-    if (strcmp(buf, "unblock ") == 0) {
-        unblock_command(buf + 8);
-        continue;
-    }
-    if (strncmp(buf, "chmod ", 6) == 0) {
+    // if (strcmp(buf, "history") == 0) {
+    //     history_command();
+    //     continue;
+    // }
+    // if (strcmp(buf, "block ") == 0) {
+    //     block_command(buf + 6);
+    //     continue;
+    // }
+    // if (strcmp(buf, "unblock ") == 0) {
+    //     unblock_command(buf + 8);
+    //     continue;
+    // }
+
+    if (buf[0] == 'c' && buf[1] == 'h' && buf[2] == 'm' && buf[3] == 'o' && buf[4] == 'd' && buf[5] == ' ') {
         char *file = 0, *mode = 0;
         int i = 6; // Start after "chmod "
 

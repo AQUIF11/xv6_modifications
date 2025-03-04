@@ -16,6 +16,8 @@
 #include "file.h"
 #include "fcntl.h"
 
+int last_failed_fd = -1;  // Track the last failed file descriptor
+
 // Fetch the nth word-sized system call argument as a file descriptor
 // and return both the descriptor and the corresponding struct file.
 static int
@@ -75,6 +77,16 @@ sys_read(void)
 
   if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argptr(1, &p, n) < 0)
     return -1;
+
+  // 🔹 Add Read Permission Check
+  ilock(f->ip);
+  if (!(f->ip->mode & 4)) {  // Check if Read permission is missing
+    iunlock(f->ip);
+    cprintf("Operation read failed\n");
+    return -1;
+  }
+  iunlock(f->ip);
+
   return fileread(f, p, n);
 }
 
@@ -87,6 +99,23 @@ sys_write(void)
 
   if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argptr(1, &p, n) < 0)
     return -1;
+
+  // 🔹 **NEW: Enforce Write Permission Check**
+  ilock(f->ip);
+  if (!(f->ip->mode & 2)) {  // Check Write Permission (w = bit 1)
+    iunlock(f->ip);
+
+    if (last_failed_fd != f->ip->inum) {  // Only print once per file
+      cprintf("Operation write failed\n");
+      last_failed_fd = f->ip->inum;
+    }
+    
+    return -1;  // ❌ No write permission
+  }
+  iunlock(f->ip);
+
+  last_failed_fd = -1;  // Reset if write succeeds
+
   return filewrite(f, p, n);
 }
 
@@ -264,6 +293,7 @@ create(char *path, short type, short major, short minor)
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
+  ip->mode = 7;   // // rwx (read, write, execute) for directories and files
   iupdate(ip);
 
   if(type == T_DIR){  // Create . and .. entries.
@@ -307,6 +337,22 @@ sys_open(void)
       return -1;
     }
     ilock(ip);
+
+    // 🔹 **NEW: Enforce Read/Write Permission Checks**
+    if ((omode & O_RDONLY) && !(ip->mode & 4)) {  // Check Read Permission
+      iunlockput(ip);
+      end_op();
+      cprintf("Operation open failed\n");
+      return -1;  // ❌ No read permission
+    }
+
+    if ((omode & O_WRONLY) && !(ip->mode & 2)) {  // Check Write Permission
+      iunlockput(ip);
+      end_op();
+      cprintf("Operation open failed\n");
+      return -1;  // ❌ No write permission
+    }
+
     if(ip->type == T_DIR && omode != O_RDONLY){
       iunlockput(ip);
       end_op();
@@ -393,30 +439,49 @@ sys_chdir(void)
   return 0;
 }
 
-int
-sys_exec(void)
+int sys_exec(void)
 {
   char *path, *argv[MAXARG];
   int i;
   uint uargv, uarg;
+  struct inode *ip;  // NEW: Inode pointer to check permissions
 
-  if(argstr(0, &path) < 0 || argint(1, (int*)&uargv) < 0){
+  if (argstr(0, &path) < 0 || argint(1, (int*)&uargv) < 0) {
     return -1;
   }
   memset(argv, 0, sizeof(argv));
-  for(i=0;; i++){
-    if(i >= NELEM(argv))
+  for (i = 0;; i++) {
+    if (i >= NELEM(argv))
       return -1;
-    if(fetchint(uargv+4*i, (int*)&uarg) < 0)
+    if (fetchint(uargv + 4 * i, (int*)&uarg) < 0)
       return -1;
-    if(uarg == 0){
+    if (uarg == 0) {
       argv[i] = 0;
       break;
     }
-    if(fetchstr(uarg, &argv[i]) < 0)
+    if (fetchstr(uarg, &argv[i]) < 0)
       return -1;
   }
-  return exec(path, argv);
+
+  // 🔹 NEW: Lookup inode and check execute permission
+  begin_op();
+  if ((ip = namei(path)) == 0) {  // Get the inode of the file
+    end_op();
+    return -1;  // ❌ File not found
+  }
+  ilock(ip);
+
+  if (!(ip->mode & 1)) {  // Check if execute (x) permission is set
+    iunlockput(ip);
+    end_op();
+    cprintf("Operation execute failed\n");
+    return -1;  // ❌ No execute permission
+  }
+
+  iunlock(ip);
+  end_op();
+
+  return exec(path, argv);  // ✅ Allowed execution
 }
 
 int
@@ -446,7 +511,7 @@ sys_pipe(void)
 // System call to implement chmod
 int sys_chmod(void) {
   char *path;
-  uint mode;
+  int mode;
   
   if (argstr(0, &path) < 0 || argint(1, &mode) < 0)
       return -1;

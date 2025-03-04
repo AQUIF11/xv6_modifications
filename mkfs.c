@@ -143,6 +143,9 @@ main(int argc, char *argv[])
       ++argv[i];
 
     inum = ialloc(T_FILE);
+    rinode(inum, &din);
+    din.mode = xint(7);  // Set default rwx permissions for user binaries
+    winode(inum, &din);
 
     bzero(&de, sizeof(de));
     de.inum = xshort(inum);
@@ -230,6 +233,8 @@ ialloc(ushort type)
   din.type = xshort(type);
   din.nlink = xshort(1);
   din.size = xint(0);
+  din.mode = xint(7);  // Set default rwx permissions
+  
   winode(inum, &din);
   return inum;
 }

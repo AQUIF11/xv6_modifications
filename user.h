@@ -33,6 +33,7 @@ int uptime(void);
 int gethistory(struct history_entry *hist_buf, int max_entries);
 int block(int syscall_id);
 int unblock(int syscall_id);
+int chmod(char *file, int mode);
 
 
 // ulib.c

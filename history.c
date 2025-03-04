@@ -1,7 +1,7 @@
 #include "types.h"
 #include "user.h"
 
-#define MAX_HISTORY 64  // Should match NPROC
+#define MAX_HISTORY 100  // Should match NPROC
 
 int main(void) {
     struct history_entry hist[MAX_HISTORY];

@@ -23,7 +23,7 @@ struct inode {
   short nlink;
   uint size;
   uint addrs[NDIRECT+1];
-  uint mode;
+  int mode;
 };
 
 // table mapping major device number to
