@@ -231,6 +231,7 @@ iupdate(struct inode *ip)
   dip->nlink = ip->nlink;
   dip->size = ip->size;
   memmove(dip->addrs, ip->addrs, sizeof(ip->addrs));
+  dip->mode = ip->mode;  // Save file permissions
   log_write(bp);
   brelse(bp);
 }
@@ -304,6 +305,7 @@ ilock(struct inode *ip)
     ip->nlink = dip->nlink;
     ip->size = dip->size;
     memmove(ip->addrs, dip->addrs, sizeof(ip->addrs));
+    ip->mode = dip->mode;  // Load file permissions
     brelse(bp);
     ip->valid = 1;
     if(ip->type == 0)

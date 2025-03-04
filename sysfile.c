@@ -442,3 +442,27 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+// System call to implement chmod
+int sys_chmod(void) {
+  char *path;
+  uint mode;
+  
+  if (argstr(0, &path) < 0 || argint(1, &mode) < 0)
+      return -1;
+
+  struct inode *ip = namei(path);
+  if (ip == 0)
+      return -1;
+
+  begin_op();
+  ilock(ip);
+
+  ip->mode = mode; // Set new permissions
+  iupdate(ip);      // Update the inode
+
+  iunlock(ip);
+  end_op();
+
+  return 0;
+}

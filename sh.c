@@ -99,6 +99,20 @@ void unblock_command(char *arg) {
   }
 }
 
+void chmod_command(char *file, char *mode_str) {
+  int mode = atoi(mode_str);
+  if (mode < 0 || mode > 7) {
+      printf(2, "Invalid mode. Use a 3-bit integer (0-7)\n");
+      return;
+  }
+  if (chmod(file, mode) < 0) {
+      printf(2, "chmod operation failed\n");
+  } else {
+      printf(1, "Permissions updated for %s\n", file);
+  }
+}
+
+
 // Execute cmd.  Never returns.
 // added __attribute__((noreturn)) for gcc13
 __attribute__((noreturn))
@@ -261,6 +275,33 @@ main(void)
         unblock_command(buf + 8);
         continue;
     }
+    if (strncmp(buf, "chmod ", 6) == 0) {
+        char *file = 0, *mode = 0;
+        int i = 6; // Start after "chmod "
+
+        // Skip leading spaces
+        while (buf[i] == ' ') i++;
+        if (buf[i] != 0) file = &buf[i]; // File name starts here
+
+        // Find the space separating file name and mode
+        while (buf[i] != 0 && buf[i] != ' ') i++;
+        if (buf[i] != 0) {
+            buf[i] = 0; // Null-terminate file name
+            i++;
+        }
+
+        // Skip spaces before mode
+        while (buf[i] == ' ') i++;
+        if (buf[i] != 0) mode = &buf[i]; // Mode starts here
+
+        if (file && mode) {
+            chmod_command(file, mode);
+        } else {
+            printf(2, "Usage: chmod <file> <mode>\n");
+        }
+        continue;
+    }
+
     
     if (fork1() == 0)
         runcmd(parsecmd(buf));
