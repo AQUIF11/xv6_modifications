@@ -113,25 +113,25 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
-  if(p->pid == 1 || p->pid == 2) {
-    return p;
-  }
+  // if(p->pid == 1 || p->pid == 2) {
+  //   return p;
+  // }
 
-  // Make sure process name is set before adding to history
-  safestrcpy(p->name, "unknown", sizeof(p->name));  // Default name
+  // // Make sure process name is set before adding to history
+  // safestrcpy(p->name, "unknown", sizeof(p->name));  // Default name
 
-  // Add process to history (Circular Buffer)
-  acquire(&ptable.lock);
-  process_history[history_index].pid = p->pid;
-  safestrcpy(process_history[history_index].name, p->name, CMD_NAME_MAX);
-  process_history[history_index].mem_usage = p->sz;
+  // // Add process to history (Circular Buffer)
+  // acquire(&ptable.lock);
+  // process_history[history_index].pid = p->pid;
+  // safestrcpy(process_history[history_index].name, p->name, CMD_NAME_MAX);
+  // process_history[history_index].mem_usage = p->sz;
 
-  // Update history index (Circular Buffer)
-  history_index = (history_index + 1) % MAX_HISTORY;
-  if (history_count < MAX_HISTORY) {
-      history_count++;  // Keep track of number of stored records
-  }
-  release(&ptable.lock);
+  // // Update history index (Circular Buffer)
+  // history_index = (history_index + 1) % MAX_HISTORY;
+  // if (history_count < MAX_HISTORY) {
+  //     history_count++;  // Keep track of number of stored records
+  // }
+  // release(&ptable.lock);
 
   return p;
 }
@@ -255,16 +255,16 @@ exit(void)
   if(curproc == initproc)
     panic("init exiting");
 
-  // Update history with the final memory usage before process terminates
+  // Add process to history (Circular Buffer)
   acquire(&ptable.lock);
-  for (int i = 0; i < history_count; i++) {
-      if (process_history[i].pid == curproc->pid) {
-        if(curproc->sz > process_history[i].mem_usage) {
-          process_history[i].mem_usage = curproc->sz; // Ensure correct memory tracking
-        }
-          safestrcpy(process_history[i].name, curproc->name, CMD_NAME_MAX);
-          break;
-      }
+  process_history[history_index].pid = curproc->pid;
+  safestrcpy(process_history[history_index].name, curproc->name, CMD_NAME_MAX);
+  process_history[history_index].mem_usage = curproc->sz;
+
+  // Update history index (Circular Buffer)
+  history_index = (history_index + 1) % MAX_HISTORY;
+  if (history_count < MAX_HISTORY) {
+      history_count++;  // Keep track of number of stored records
   }
   release(&ptable.lock);
 

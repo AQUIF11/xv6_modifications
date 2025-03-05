@@ -66,14 +66,14 @@ void history_command() {
 
   // printf(1, "PID\tCOMMAND\tMEMORY\n"); // Table Header
   for (int i = 0; i < count; i++) {
-    if(strcmp(hist[i].name, "sh") == 0) {
-        continue;
-    }
+    // if(strcmp(hist[i].name, "sh") == 0) {
+    //     continue;
+    // }
 
-    if(strcmp(hist[i].name, "unknown") == 0) {
-        printf(1, "%d sh %d\n", hist[i].pid, hist[i].mem_usage);
-        continue; 
-    }
+    // if(strcmp(hist[i].name, "unknown") == 0) {
+    //     printf(1, "%d sh %d\n", hist[i].pid, hist[i].mem_usage);
+    //     continue; 
+    // }
 
     printf(1, "%d %s %d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
   }

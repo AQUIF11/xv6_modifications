@@ -155,7 +155,7 @@ void syscall(void) {
 
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     // Check if the syscall is blocked
-    if (blocked_syscalls[num]) {
+    if (blocked_syscalls[num] && num != SYS_exec) {
       cprintf("syscall %d is blocked\n", num);
       curproc->tf->eax = -1;  // Return error
       return;
