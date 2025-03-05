@@ -71,11 +71,11 @@ void history_command() {
     }
 
     if(strcmp(hist[i].name, "unknown") == 0) {
-        printf(1, "%d\tsh\t%d\n", hist[i].pid, hist[i].mem_usage);
+        printf(1, "%d sh %d\n", hist[i].pid, hist[i].mem_usage);
         continue; 
     }
 
-    printf(1, "%d\t%s\t%d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
+    printf(1, "%d %s %d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
   }
 }
 

@@ -50,7 +50,7 @@ int main(void) {
     int attempts = 0;
 
     while (attempts < MAX_ATTEMPTS) {
-        printf(1, "$Enter Username: ");
+        printf(1, "$Enter username: ");
   4f:	83 ec 08             	sub    $0x8,%esp
   52:	68 80 09 00 00       	push   $0x980
   57:	6a 01                	push   $0x1
@@ -85,7 +85,7 @@ int main(void) {
             continue;
         }
 
-        printf(1, "$Enter Password: ");
+        printf(1, "$Enter password: ");
   8c:	50                   	push   %eax
   8d:	50                   	push   %eax
   8e:	68 9a 09 00 00       	push   $0x99a

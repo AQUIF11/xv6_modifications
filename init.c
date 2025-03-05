@@ -45,7 +45,7 @@ int main(void) {
     int attempts = 0;
 
     while (attempts < MAX_ATTEMPTS) {
-        printf(1, "$Enter Username: ");
+        printf(1, "$Enter username: ");
         get_input(username, sizeof(username));
 
         if (!is_valid_input(username)) {
@@ -59,7 +59,7 @@ int main(void) {
             continue;
         }
 
-        printf(1, "$Enter Password: ");
+        printf(1, "$Enter password: ");
         get_input(password, sizeof(password));
 
         if (!is_valid_input(password)) {

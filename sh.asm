@@ -287,7 +287,7 @@ void history_command() {
      336:	2e 8d b4 26 00 00 00 	lea    %cs:0x0(%esi,%eiz,1),%esi
      33d:	00 
      33e:	66 90                	xchg   %ax,%ax
-    printf(1, "%d\t%s\t%d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
+    printf(1, "%d %s %d\n", hist[i].pid, hist[i].name, hist[i].mem_usage);
      340:	83 ec 0c             	sub    $0xc,%esp
      343:	ff 73 10             	push   0x10(%ebx)
      346:	53                   	push   %ebx
@@ -317,12 +317,12 @@ void history_command() {
      386:	83 c4 10             	add    $0x10,%esp
      389:	85 c0                	test   %eax,%eax
      38b:	75 b3                	jne    340 <history_command+0x40>
-        printf(1, "%d\tsh\t%d\n", hist[i].pid, hist[i].mem_usage);
+        printf(1, "%d sh %d\n", hist[i].pid, hist[i].mem_usage);
      38d:	ff 73 10             	push   0x10(%ebx)
   for (int i = 0; i < count; i++) {
      390:	83 c6 01             	add    $0x1,%esi
      393:	83 c3 18             	add    $0x18,%ebx
-        printf(1, "%d\tsh\t%d\n", hist[i].pid, hist[i].mem_usage);
+        printf(1, "%d sh %d\n", hist[i].pid, hist[i].mem_usage);
      396:	ff 73 e4             	push   -0x1c(%ebx)
      399:	68 83 16 00 00       	push   $0x1683
      39e:	6a 01                	push   $0x1
